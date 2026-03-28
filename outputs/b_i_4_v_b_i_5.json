@@ -1,0 +1,11 @@
+{
+  "title": "Bài 4 và Bài 5",
+  "summary": "Bài 4 kiểm tra số nguyên dương có chia hết cho 2 hoặc 3 hay không. Bài 5 giải phương trình bậc 2.",
+  "explanation_easy": "Bài 4 yêu cầu bạn kiểm tra xem một số có chia hết cho 2 hoặc 3 không. Bài 5 yêu cầu bạn tìm nghiệm của phương trình bậc 2.",
+  "notes": [
+    "Nhớ kiểm tra điều kiện đầu vào.",
+    "Đối với phương trình bậc 2, có thể có 0, 1 hoặc 2 nghiệm."
+  ],
+  "starter_code": "{'Bai_4': \"number = int(input('Nhập số nguyên dương: '))\\n# TODO: Kiểm tra số chia hết cho 2 hoặc 3\\n\", 'Bai_5': \"a = float(input('Nhập a: '))\\nb = float(input('Nhập b: '))\\nc = float(input('Nhập c: '))\\n# TODO: Tính delta và tìm nghiệm\\n\"}",
+  "user_code": "{'Bai_4': \"number = int(input('Nhập số nguyên dương: '))\\n# TODO: Kiểm tra số chia hết cho 2 hoặc 3\\n\", 'Bai_5': \"a = float(input('Nhập a: '))\\nb = float(input('Nhập b: '))\\nc = float(input('Nhập c: '))\\n# TODO: Tính delta và tìm nghiệm\\n\"}"
+}

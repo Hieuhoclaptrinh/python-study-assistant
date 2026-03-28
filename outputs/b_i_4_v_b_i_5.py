@@ -1,0 +1,1 @@
+{'Bai_4': "number = int(input('Nhập số nguyên dương: '))\n# TODO: Kiểm tra số chia hết cho 2 hoặc 3\n", 'Bai_5': "a = float(input('Nhập a: '))\nb = float(input('Nhập b: '))\nc = float(input('Nhập c: '))\n# TODO: Tính delta và tìm nghiệm\n"}

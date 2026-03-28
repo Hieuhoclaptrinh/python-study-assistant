@@ -1,0 +1,11 @@
+{
+  "title": "Kiểm tra số chia hết cho 2 hoặc 3",
+  "summary": "Chương trình nhập một số nguyên dương và kiểm tra xem số đó có chia hết cho 2 hoặc 3 hay không.",
+  "explanation_easy": "Chúng ta sẽ nhập một số và dùng phép chia để kiểm tra. Nếu số đó chia hết cho 2 hoặc 3, chúng ta sẽ thông báo cho người dùng.",
+  "notes": [
+    "Nhớ nhập số nguyên dương.",
+    "Kiểm tra kỹ các điều kiện trước khi in kết quả."
+  ],
+  "starter_code": "number = int(input('Nhập một số nguyên dương: '))\n# TODO: Kiểm tra xem number có chia hết cho 2 hoặc 3 không\n# TODO: In ra kết quả phù hợp",
+  "user_code": "n = int(input('nhap 1 so nguyen duong: '))\nif n % 2 == 0 and n % 3 == 0:\n    print(\"so chia het cho 2 va 3\")\nelif n % 2 == 0:\n    print(\"so chia het cho 2\")\nelif n % 3 == 0:\n    print(\"so chia het cho 3\")\nelse:\n    print(\"so khong chia het cho 2 va 3\")\n\n"
+}

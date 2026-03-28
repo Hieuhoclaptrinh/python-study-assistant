@@ -5,8 +5,15 @@ from pathlib import Path
 
 import streamlit as st
 
-from ai_solver import save_outputs, solve_problem, transcribe_from_image, transcribe_problem_text
-from github_utils import commit_ai_outputs, commit_all, has_git, init_repo_if_needed, push, set_remote
+from ai_solver import (
+    analyze_code_error,
+    generate_learning_plan,
+    run_user_code,
+    save_outputs,
+    transcribe_from_image,
+    transcribe_problem_text,
+)
+from github_utils import commit_all, has_git, init_repo_if_needed, push, set_remote
 
 st.set_page_config(
     page_title="Python Study Assistant",
@@ -22,61 +29,128 @@ EXPORT_DIR.mkdir(exist_ok=True)
 
 CSS = """
 <style>
-.main {
-    background: linear-gradient(180deg, #0b1220 0%, #111827 100%);
+:root {
+    --bg-1: #0f172a;
+    --bg-2: #111827;
+    --card: rgba(17, 24, 39, 0.78);
+    --card-2: rgba(15, 23, 42, 0.82);
+    --border: rgba(99, 102, 241, 0.22);
+    --text: #e5eefb;
+    --muted: #b8c4dd;
+    --accent: #60a5fa;
+    --accent-2: #818cf8;
+    --success: #10b981;
 }
+
+html, body, [class*="css"] {
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+[data-testid="stAppViewContainer"] {
+    background: radial-gradient(circle at top left, #13203d 0%, var(--bg-1) 45%, #0b1220 100%);
+}
+
+[data-testid="stHeader"] {
+    background: rgba(0, 0, 0, 0);
+}
+
 .block-container {
     padding-top: 1.2rem;
     padding-bottom: 2rem;
+    max-width: 1280px;
 }
-[data-testid="stAppViewContainer"] {
-    background: linear-gradient(180deg, #0b1220 0%, #111827 100%);
+
+h1, h2, h3, h4, p, label, div, span {
+    color: var(--text);
 }
-[data-testid="stHeader"] {
-    background: rgba(0,0,0,0);
-}
-h1, h2, h3, p, label, div, span {
-    color: #eef2ff;
-}
-.hero-card, .glass {
-    background: rgba(17, 24, 39, 0.75);
-    border: 1px solid rgba(99, 102, 241, 0.28);
+
+.hero-card, .section-card {
+    background: linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%);
+    border: 1px solid var(--border);
     border-radius: 22px;
-    padding: 1rem 1.1rem;
-    box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+    padding: 1.1rem 1.15rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+    margin-bottom: 1rem;
 }
+
+.small-note {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
 .badge {
     display: inline-block;
-    padding: 0.35rem 0.7rem;
+    padding: 0.32rem 0.72rem;
     border-radius: 999px;
-    background: rgba(59, 130, 246, 0.16);
-    color: #bfdbfe;
-    border: 1px solid rgba(96, 165, 250, 0.32);
-    margin-right: 0.4rem;
-    margin-bottom: 0.4rem;
-    font-size: 0.9rem;
+    background: rgba(96, 165, 250, 0.14);
+    color: #dbeafe;
+    border: 1px solid rgba(96, 165, 250, 0.26);
+    margin-right: 0.45rem;
+    margin-bottom: 0.45rem;
+    font-size: 0.88rem;
 }
-.note {
-    border-left: 4px solid #60a5fa;
+
+.note-box {
+    border-left: 4px solid var(--accent);
     background: rgba(30, 41, 59, 0.72);
     padding: 0.8rem 1rem;
     border-radius: 12px;
     color: #dbeafe;
+    margin-top: 0.6rem;
 }
-textarea, input {
+
+[data-testid="stTextArea"] textarea,
+[data-testid="stTextInput"] input {
+    background: rgba(248, 250, 252, 0.96) !important;
     color: #0f172a !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+}
+
+[data-testid="stTextArea"] textarea {
+    line-height: 1.55 !important;
+    font-size: 15px !important;
+}
+
+.stButton > button {
+    border-radius: 14px !important;
+    border: none !important;
+    padding: 0.62rem 1rem !important;
+    font-weight: 600 !important;
+}
+
+.result-ok {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    color: #d1fae5;
+    margin-top: 0.7rem;
+}
+
+.file-preview {
+    color: #cbd5e1;
+    font-size: 0.92rem;
+    margin-top: 0.35rem;
 }
 </style>
 """
 
 st.markdown(CSS, unsafe_allow_html=True)
 
-if "solution" not in st.session_state:
-    st.session_state.solution = None
+if "lesson" not in st.session_state:
+    st.session_state.lesson = None
 if "problem_text" not in st.session_state:
     st.session_state.problem_text = ""
 if "zip_path" not in st.session_state:
     st.session_state.zip_path = None
+if "user_code" not in st.session_state:
+    st.session_state.user_code = ""
+if "ai_feedback" not in st.session_state:
+    st.session_state.ai_feedback = ""
+if "run_result" not in st.session_state:
+    st.session_state.run_result = None
 
 
 def zip_project(project_dir: Path, export_dir: Path) -> str:
@@ -88,43 +162,62 @@ def zip_project(project_dir: Path, export_dir: Path) -> str:
     return str(zip_base.with_suffix(".zip"))
 
 
+def preview_file_name(name: str) -> str:
+    if not name.strip():
+        return "solution"
+    cleaned = name.replace(".", "_")
+    cleaned = "".join(ch if ch.isalnum() or ch in ["_", "-"] else "_" for ch in cleaned)
+    cleaned = cleaned.strip("_").lower()
+    return cleaned or "solution"
+
+
 with st.container():
     st.markdown('<div class="hero-card">', unsafe_allow_html=True)
-    cols = st.columns([1.15, 1])
-    with cols[0]:
+    col_a, col_b = st.columns([1.2, 0.9])
+    with col_a:
         st.title("🐍 Python Study Assistant")
         st.write(
-            "Nhận đề bài bằng ảnh hoặc văn bản, trích nội dung, sinh code Python có giải thích, "
-            "rồi để bạn tự kiểm tra trước khi commit và push lên GitHub."
+            "Nhập đề bài, nhận gợi ý dễ hiểu, tự viết code, chạy thử và để AI giải thích lỗi từng bước."
         )
         st.markdown(
-            '<span class="badge">Ảnh đề bài</span>'
-            '<span class="badge">Giải thích từng bước</span>'
-            '<span class="badge">Xuất file .py</span>'
-            '<span class="badge">Push GitHub thủ công</span>',
+            '<span class="badge">Gợi ý dễ hiểu</span>'
+            '<span class="badge">Code khung</span>'
+            '<span class="badge">Tự nhập code</span>'
+            '<span class="badge">AI chỉ lỗi</span>',
             unsafe_allow_html=True,
         )
         st.markdown(
-            '<div class="note"><b>Lưu ý:</b> App này hỗ trợ học tập và review. Không có chế độ tự động nộp bài không qua xác nhận của bạn.</div>',
+            '<div class="note-box"><b>Lưu ý:</b> App ưu tiên học tập. AI chỉ đưa gợi ý và phân tích lỗi, không tự viết toàn bộ bài cho bạn.</div>',
             unsafe_allow_html=True,
         )
-    with cols[1]:
+    with col_b:
         if ASSET_BANNER.exists():
             st.image(str(ASSET_BANNER), use_container_width=True)
+        else:
+            st.markdown(
+                '<div class="small-note">Bạn có thể thêm ảnh banner vào thư mục <code>assets/banner.png</code>.</div>',
+                unsafe_allow_html=True,
+            )
     st.markdown("</div>", unsafe_allow_html=True)
 
-left, right = st.columns([1.15, 0.85], gap="large")
+left, right = st.columns([1, 1], gap="large")
 
 with left:
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
     st.subheader("1) Nhập đề bài")
-    input_mode = st.radio("Chọn cách đưa đề bài", ["Nhập văn bản", "Tải ảnh đề bài"], horizontal=True)
+
+    input_mode = st.radio(
+        "Chọn cách đưa đề bài",
+        ["Nhập văn bản", "Tải ảnh đề bài"],
+        horizontal=True,
+    )
 
     if input_mode == "Nhập văn bản":
         problem_text = st.text_area(
             "Dán đề bài Python",
             value=st.session_state.problem_text,
-            height=220,
-            placeholder="Ví dụ: Nhập vào 2 số nguyên, tính tổng và in ra màn hình...",
+            height=200,
+            placeholder="Ví dụ: Nhập 2 số nguyên và in ra tổng của chúng...",
         )
         if st.button("Lưu đề bài", use_container_width=True):
             st.session_state.problem_text = transcribe_problem_text(problem_text)
@@ -153,133 +246,199 @@ with left:
     st.text_area(
         "Nội dung đề bài hiện tại",
         value=st.session_state.problem_text,
-        height=220,
-        disabled=False,
+        height=180,
         key="preview_problem_text",
     )
 
     extra_request = st.text_input(
         "Yêu cầu thêm",
-        placeholder="Ví dụ: dùng input(), chỉ dùng if/else, code cho người mới học",
+        placeholder="Ví dụ: dễ hiểu cho người mới, chỉ cho gợi ý trước",
     )
 
-    if st.button("✨ Sinh lời giải và code Python", type="primary", use_container_width=True):
+    if st.button("✨ Tạo gợi ý học tập", type="primary", use_container_width=True):
         if not st.session_state.problem_text.strip():
             st.error("Bạn cần nhập đề bài hoặc trích đề từ ảnh trước.")
         else:
             try:
-                with st.spinner("AI đang phân tích đề bài..."):
-                    st.session_state.solution = solve_problem(st.session_state.problem_text, extra_request)
-                st.success("Đã sinh lời giải và code.")
+                with st.spinner("AI đang tạo gợi ý..."):
+                    st.session_state.lesson = generate_learning_plan(
+                        st.session_state.problem_text,
+                        extra_request,
+                    )
+                    st.session_state.user_code = st.session_state.lesson.get("starter_code", "")
+                    st.session_state.ai_feedback = ""
+                    st.session_state.run_result = None
+                st.success("Đã tạo gợi ý và code khung.")
             except Exception as e:
-                st.error(f"Lỗi sinh lời giải: {e}")
+                st.error(f"Lỗi tạo gợi ý: {e}")
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 with right:
-    st.subheader("2) Kết quả")
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.subheader("2) Học và viết code")
 
-    if st.session_state.solution:
-        solution = st.session_state.solution
+    if st.session_state.lesson:
+        lesson = st.session_state.lesson
 
-        st.markdown('<div class="glass">', unsafe_allow_html=True)
-        st.markdown(f"### {solution.get('title', 'Python Solution')}")
-        st.write(solution.get("summary", ""))
+        st.markdown(f"### {lesson.get('title', 'Huong dan Python')}")
+        if lesson.get("summary"):
+            st.write(lesson.get("summary", ""))
 
-        with st.expander("Giải thích cách làm", expanded=True):
-            st.write(solution.get("explanation", ""))
+        with st.expander("Giải thích dễ hiểu", expanded=True):
+            st.write(lesson.get("explanation_easy", "") or "Chưa có giải thích.")
 
-        with st.expander("Code Python", expanded=True):
-            st.code(solution.get("code", "") or "", language="python")
+        with st.expander("Gợi ý mức 1", expanded=True):
+            hints_1 = lesson.get("hint_level_1", [])
+            if hints_1:
+                for item in hints_1:
+                    st.write(f"- {item}")
+            else:
+                st.write("Chưa có gợi ý mức 1.")
 
-        with st.expander("Ví dụ chạy"):
-            st.write(solution.get("sample_run", ""))
+        with st.expander("Gợi ý mức 2"):
+            hints_2 = lesson.get("hint_level_2", [])
+            if hints_2:
+                for item in hints_2:
+                    st.write(f"- {item}")
+            else:
+                st.write("Chưa có gợi ý mức 2.")
 
-        notes = solution.get("notes", [])
-        if notes:
-            st.write("**Ghi chú:**")
-            for note in notes:
-                st.write(f"- {note}")
+        tests = lesson.get("sample_tests", [])
+        if tests:
+            with st.expander("Ví dụ test"):
+                for i, t in enumerate(tests, start=1):
+                    st.markdown(f"**Test {i}**")
+                    st.code(
+                        f"Input:\n{t.get('input', '')}\n\nOutput mong doi:\n{t.get('output', '')}",
+                        language="text",
+                    )
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.text_area(
+            "3) Code khung / code của bạn",
+            value=st.session_state.user_code,
+            height=300,
+            key="user_code_editor",
+        )
+        st.session_state.user_code = st.session_state.user_code_editor
 
-        py_path, md_path, json_path = save_outputs(solution, str(OUTPUT_DIR))
+        default_input = tests[0].get("input", "") if tests else ""
+        expected_output = tests[0].get("output", "") if tests else ""
 
-        with open(py_path, "rb") as f:
-            st.download_button(
-                "Tải file solution.py",
-                f,
-                file_name=os.path.basename(py_path),
-                use_container_width=True,
-                key="download_solution_py",
-            )
+        manual_input = st.text_area(
+            "Input để chạy thử",
+            value=default_input,
+            height=110,
+            key="manual_test_input",
+        )
 
-        with open(md_path, "rb") as f:
-            st.download_button(
-                "Tải file solution.md",
-                f,
-                file_name=os.path.basename(md_path),
-                use_container_width=True,
-                key="download_solution_md",
-            )
+        btn_col_1, btn_col_2 = st.columns(2)
 
-        with open(json_path, "rb") as f:
-            st.download_button(
-                "Tải file solution.json",
-                f,
-                file_name=os.path.basename(json_path),
-                use_container_width=True,
-                key="download_solution_json",
-            )
+        with btn_col_1:
+            if st.button("▶ Chạy thử code", use_container_width=True):
+                result = run_user_code(st.session_state.user_code, manual_input)
+                st.session_state.run_result = result
+
+                if result["ok"]:
+                    st.success("Code đã chạy xong.")
+                else:
+                    st.error("Code đang có lỗi khi chạy.")
+
+        with btn_col_2:
+            if st.button("🧠 AI phân tích lỗi", use_container_width=True):
+                result = st.session_state.run_result or run_user_code(st.session_state.user_code, manual_input)
+
+                feedback = analyze_code_error(
+                    problem_text=st.session_state.problem_text,
+                    user_code=st.session_state.user_code,
+                    error_text=result.get("stderr", ""),
+                    run_output=result.get("stdout", ""),
+                    expected_output=expected_output,
+                )
+                st.session_state.ai_feedback = feedback
+
+        if st.session_state.run_result:
+            result = st.session_state.run_result
+
+            with st.expander("Kết quả chạy code", expanded=True):
+                st.write(f"**Return code:** {result.get('returncode')}")
+                st.write("**Output:**")
+                st.code(result.get("stdout", "") or "(khong co output)", language="text")
+
+                if result.get("stderr"):
+                    st.write("**Lỗi:**")
+                    st.code(result.get("stderr", ""), language="text")
+
+                if expected_output:
+                    st.write("**Output mong đợi:**")
+                    st.code(expected_output, language="text")
+
+        if st.session_state.ai_feedback:
+            with st.expander("Gợi ý sửa từ AI", expanded=True):
+                st.write(st.session_state.ai_feedback)
 
         st.divider()
-        st.subheader("3) Lưu kết quả AI lên GitHub")
-        st.caption("Chỉ push file kết quả sau khi bạn đã tự xem lại nội dung.")
+        st.subheader("4) Lưu file")
 
-        review_ok_after_ai = st.checkbox(
-            "Tôi đã tự xem lại nội dung và muốn lưu file kết quả AI này lên GitHub",
-            key="review_ok_after_ai",
+        custom_name = st.text_input(
+            "Đặt tên file",
+            placeholder="Ví dụ: 2.2, bai_1, tong_2_so",
         )
 
-        auto_commit_message = solution.get("title", "Add AI reviewed solution")
-
-        push_after_review = st.button(
-            "🚀 Commit và Push file kết quả AI",
-            use_container_width=True,
-            key="push_after_review_btn",
+        st.markdown(
+            f'<div class="file-preview">Tên file sẽ là: <b>{preview_file_name(custom_name)}</b>.py / .md / .json</div>',
+            unsafe_allow_html=True,
         )
 
-        if push_after_review:
-            if not has_git():
-                st.error("Máy của bạn chưa cài Git hoặc Git chưa có trong PATH.")
-            elif not review_ok_after_ai:
-                st.error("Bạn cần xác nhận đã tự xem lại nội dung trước khi push.")
-            else:
-                logs = []
+        save_payload = {
+            "title": lesson.get("title", "Python Practice"),
+            "summary": lesson.get("summary", ""),
+            "explanation_easy": lesson.get("explanation_easy", ""),
+            "notes": lesson.get("notes", []),
+            "starter_code": lesson.get("starter_code", ""),
+            "user_code": st.session_state.user_code,
+        }
 
-                ok, msg = init_repo_if_needed(str(PROJECT_DIR))
-                logs.append(msg)
+        py_path, md_path, json_path = save_outputs(save_payload, str(OUTPUT_DIR), custom_name)
 
-                if ok:
-                    ok, msg = commit_ai_outputs(
-                        str(PROJECT_DIR),
-                        auto_commit_message,
-                    )
-                    logs.append(msg)
+        dl1, dl2, dl3 = st.columns(3)
 
-                if ok:
-                    ok, msg = push(str(PROJECT_DIR), branch="main")
-                    logs.append(msg)
+        with dl1:
+            with open(py_path, "rb") as f:
+                st.download_button(
+                    "Tải .py",
+                    f,
+                    file_name=os.path.basename(py_path),
+                    use_container_width=True,
+                    key="download_py",
+                )
 
-                if ok:
-                    st.success("Đã lưu file kết quả AI và push lên GitHub thành công.")
-                else:
-                    st.error("Push chưa thành công. Xem log bên dưới để sửa.")
+        with dl2:
+            with open(md_path, "rb") as f:
+                st.download_button(
+                    "Tải .md",
+                    f,
+                    file_name=os.path.basename(md_path),
+                    use_container_width=True,
+                    key="download_md",
+                )
 
-                st.code("\n\n".join(logs), language="bash")
+        with dl3:
+            with open(json_path, "rb") as f:
+                st.download_button(
+                    "Tải .json",
+                    f,
+                    file_name=os.path.basename(json_path),
+                    use_container_width=True,
+                    key="download_json",
+                )
     else:
-        st.info("Kết quả sẽ hiện ở đây sau khi bạn bấm nút sinh lời giải.")
+        st.info("Sau khi bạn bấm 'Tạo gợi ý học tập', khu học và viết code sẽ hiện ở đây.")
 
-st.divider()
-st.subheader("3) Xuất ZIP project")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown('<div class="section-card">', unsafe_allow_html=True)
+st.subheader("5) Xuất ZIP project")
 
 if st.button("📦 Tạo file ZIP project", use_container_width=True):
     try:
@@ -297,18 +456,19 @@ if st.session_state.zip_path and os.path.exists(st.session_state.zip_path):
             file_name="python_study_assistant_export.zip",
             use_container_width=True,
         )
+st.markdown("</div>", unsafe_allow_html=True)
 
-st.divider()
-st.subheader("4) Commit và Push lên GitHub")
+st.markdown('<div class="section-card">', unsafe_allow_html=True)
+st.subheader("6) Commit và Push lên GitHub")
 st.caption("Chỉ thực hiện sau khi bạn đã tự xem lại nội dung.")
 
-col1, col2 = st.columns(2)
-with col1:
+git_col_1, git_col_2 = st.columns(2)
+with git_col_1:
     remote_url = st.text_input(
         "GitHub remote URL",
         placeholder="https://github.com/ban/project-cua-toi.git",
     )
-with col2:
+with git_col_2:
     commit_message = st.text_input(
         "Commit message",
         value="Add reviewed Python exercise solution",
@@ -351,6 +511,8 @@ if push_btn:
 
 with st.expander("Hướng dẫn nhập API key"):
     st.code(
-        'Mở file ai_solver.py và thay:\nOPENROUTER_API_KEY = "API_MOI_CUA_BAN"',
-        language="python",
+        "Windows PowerShell:\n$env:OPENROUTER_API_KEY='API_MOI_CUA_BAN'\npython -m streamlit run app.py\n\n"
+        "Windows CMD:\nset OPENROUTER_API_KEY=API_MOI_CUA_BAN\npython -m streamlit run app.py",
+        language="bash",
     )
+st.markdown("</div>", unsafe_allow_html=True)
