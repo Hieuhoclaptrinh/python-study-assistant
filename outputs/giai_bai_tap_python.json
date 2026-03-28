@@ -1,14 +1,11 @@
 {
   "title": "Giai bai tap Python",
-  "summary": "Bài tập này bao gồm việc tính toán tổng, tích, hiệu, phép chia, và xử lý chuỗi ký tự từ đầu vào của người dùng.",
-  "explanation": "Chương trình sẽ yêu cầu người dùng nhập vào các số nguyên và chuỗi ký tự, sau đó thực hiện các phép toán và in kết quả ra màn hình.",
-  "code": "def bai_1():\n    a = int(input('Nhap so nguyen thu nhat: '))\n    b = int(input('Nhap so nguyen thu hai: '))\n    tong = a + b\n    print('Tong hai so:', tong)\n\n\ndef bai_2():\n    chuoi = input('Nhap chuoi ky tu: ')\n    print('Chuoi ky tu:', chuoi)\n\n\ndef bai_3():\n    a = int(input('Nhap so nguyen thu nhat: '))\n    b = int(input('Nhap so nguyen thu hai: '))\n    c = int(input('Nhap so nguyen thu ba: '))\n    tong = a + b + c\n    tich = a * b * c\n    print('Tong:', tong)\n    print('Tich:', tich)\n    hieu = a - b  # Giả sử lấy hiệu của a và b\n    print('Hieu:', hieu)\n    if b != 0:\n        chia_nguyen = a // b\n        chia_du = a % b\n        chia_chinh_xac = a / b\n        print('Chia nguyen:', chia_nguyen)\n        print('Chia du:', chia_du)\n        print('Chia chinh xac:', chia_chinh_xac)\n    else:\n        print('Khong the chia cho 0')\n\n\ndef bai_4():\n    chuoi1 = input('Nhap chuoi ky tu thu nhat: ')\n    chuoi2 = input('Nhap chuoi ky tu thu hai: ')\n    chuoi3 = input('Nhap chuoi ky tu thu ba: ')\n    ket_qua = chuoi1 + ' ' + chuoi2 + ' ' + chuoi3\n    print('Chuoi ghep:', ket_qua)\n\n\ndef bai_5():\n    import math\n    R = float(input('Nhap ban kinh: '))\n    CV = 2 * R * math.pi\n    DT = math.pi * R * R\n    print('Chu vi:', CV)\n    print('Dien tich:', DT)\n\n\n# Chạy các bài tập\nbai_1()\nbai_2()\nbai_3()\nbai_4()\nbai_5()",
-  "sample_run": "Nhap so nguyen thu nhat: 5\nNhap so nguyen thu hai: 10\nTong hai so: 15\nNhap chuoi ky tu: Hello\nChuoi ky tu: Hello\nNhap so nguyen thu nhat: 3\nNhap so nguyen thu hai: 4\nNhap so nguyen thu ba: 5\nTong: 12\nTich: 60\nHieu: -1\nNhap chuoi ky tu thu nhat: Nguyen\nNhap chuoi ky tu thu hai: Van\nNhap chuoi ky tu thu ba: Minh\nChuoi ghep: Nguyen Van Minh\nNhap ban kinh: 7\nChu vi: 43.982297150257104\nDien tich: 153.93804002589985",
+  "summary": "Chương trình kiểm tra số chẵn/lẻ, kiểm tra độ dài ba cạnh tam giác và tính tuổi từ năm sinh.",
+  "explanation": "Chương trình này bao gồm 3 bài tập: Bài 1 kiểm tra số chẵn hay lẻ, Bài 2 kiểm tra xem ba số có phải là độ dài ba cạnh của một tam giác hay không, và Bài 3 tính tuổi dựa trên năm sinh.",
+  "code": "def bai_1():\n    so_nguyen = int(input('Nhap vao mot so nguyen duong: '))\n    if so_nguyen % 2 == 0:\n        print('Day la mot so chan')\n    else:\n        print('Day la mot so le')\n\n\ndef bai_2():\n    a = int(input('Nhap vao canh a: '))\n    b = int(input('Nhap vao canh b: '))\n    c = int(input('Nhap vao canh c: '))\n    if a + b > c and a + c > b and b + c > a:\n        print('Do dai ba canh tam giac')\n    else:\n        print('Day khong phai do dai ba canh tam giac')\n\n\ndef bai_3():\n    nam_sinh = int(input('Nhap vao nam sinh: '))\n    from datetime import datetime\n    nam_hien_tai = datetime.now().year\n    tuoi = nam_hien_tai - nam_sinh\n    print(f'Nam sinh {nam_sinh}, vay ban {tuoi} tuoi.')\n\n\nif __name__ == '__main__':\n    bai_1()\n    bai_2()\n    bai_3()",
+  "sample_run": "Nhap vao mot so nguyen duong: 5\nDay la mot so le\nNhap vao canh a: 3\nNhap vao canh b: 4\nNhap vao canh c: 5\nDo dai ba canh tam giac\nNhap vao nam sinh: 1990\nNam sinh 1990, vay ban 28 tuoi.",
   "notes": [
-    "Bài 1: Tính tổng hai số nguyên.",
-    "Bài 2: In ra chuỗi ký tự.",
-    "Bài 3: Tính tổng, tích, hiệu và phép chia.",
-    "Bài 4: Ghép ba chuỗi ký tự.",
-    "Bài 5: Tính chu vi và diện tích hình tròn."
+    "Chương trình yêu cầu nhập dữ liệu từ người dùng.",
+    "Đảm bảo nhập số nguyên dương cho bài 1 và bài 2."
   ]
 }

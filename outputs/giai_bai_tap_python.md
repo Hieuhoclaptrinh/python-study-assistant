@@ -2,37 +2,24 @@
 
 ## Tom tat
 
-Bài tập này bao gồm việc tính toán tổng, tích, hiệu, phép chia, và xử lý chuỗi ký tự từ đầu vào của người dùng.
+Chương trình kiểm tra số chẵn/lẻ, kiểm tra độ dài ba cạnh tam giác và tính tuổi từ năm sinh.
 
 ## Giai thich
 
-Chương trình sẽ yêu cầu người dùng nhập vào các số nguyên và chuỗi ký tự, sau đó thực hiện các phép toán và in kết quả ra màn hình.
+Chương trình này bao gồm 3 bài tập: Bài 1 kiểm tra số chẵn hay lẻ, Bài 2 kiểm tra xem ba số có phải là độ dài ba cạnh của một tam giác hay không, và Bài 3 tính tuổi dựa trên năm sinh.
 
 ## Vi du chay
 
-Nhap so nguyen thu nhat: 5
-Nhap so nguyen thu hai: 10
-Tong hai so: 15
-Nhap chuoi ky tu: Hello
-Chuoi ky tu: Hello
-Nhap so nguyen thu nhat: 3
-Nhap so nguyen thu hai: 4
-Nhap so nguyen thu ba: 5
-Tong: 12
-Tich: 60
-Hieu: -1
-Nhap chuoi ky tu thu nhat: Nguyen
-Nhap chuoi ky tu thu hai: Van
-Nhap chuoi ky tu thu ba: Minh
-Chuoi ghep: Nguyen Van Minh
-Nhap ban kinh: 7
-Chu vi: 43.982297150257104
-Dien tich: 153.93804002589985
+Nhap vao mot so nguyen duong: 5
+Day la mot so le
+Nhap vao canh a: 3
+Nhap vao canh b: 4
+Nhap vao canh c: 5
+Do dai ba canh tam giac
+Nhap vao nam sinh: 1990
+Nam sinh 1990, vay ban 28 tuoi.
 
 ## Ghi chu
 
-- Bài 1: Tính tổng hai số nguyên.
-- Bài 2: In ra chuỗi ký tự.
-- Bài 3: Tính tổng, tích, hiệu và phép chia.
-- Bài 4: Ghép ba chuỗi ký tự.
-- Bài 5: Tính chu vi và diện tích hình tròn.
+- Chương trình yêu cầu nhập dữ liệu từ người dùng.
+- Đảm bảo nhập số nguyên dương cho bài 1 và bài 2.
