@@ -1,0 +1,12 @@
+{
+  "title": "Khong parse duoc loi giai",
+  "summary": "Model khong tra ve JSON dung dinh dang.",
+  "explanation": "Loi: Error code: 401 - {'error': {'message': 'User not found.', 'code': 401}}\n\nNoi dung thuc te model tra ve:\n",
+  "code": "# Khong lay duoc noi dung tra ve tu model",
+  "sample_run": "",
+  "notes": [
+    "Hay doi model khac trong OpenRouter.",
+    "Khong nen dung model alias qua chung chung.",
+    "Kiem tra model co ho tro chat/vision hay khong."
+  ]
+}

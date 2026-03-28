@@ -1,0 +1,1 @@
+# Khong lay duoc noi dung tra ve tu model
