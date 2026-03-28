@@ -1,0 +1,22 @@
+# Solution
+
+## Tóm tắt
+
+{
+  "title": "Bài tập Python - Phần 2.3",
+  "summary": "Hướng dẫn giải các bài tập nhập/xuất dữ liệu và tính toán cơ bản bằng Python",
+  "explanation": "Mỗi bài tập yêu cầu nhập dữ liệu từ bàn phím, xử lý và xuất kết quả. Các bài 3 và 5 yêu cầu tính toán toán học cụ thể.",
+  "code": "def main():\n    # Bài 1\n    a = int(input(\"Nhập số a: \"))\n    b = int(input(\"Nhập số b: \"))\n    print(f\"Tổng: {a + b}\")\n\n    # Bài 2\n    s = input(\"Nhập chuỗi: \")\n    print(s)\n\n    # Bài 3\n    nums = [int(input(f\"Nhập số {i+1}: \")) for i in range(3)]\n    total = sum(nums)\n    product = nums[0] * nums[1] * nums[2]\n    diff = nums[0] - nums[1]\n    print(f\"Tổng: {total}\")\n    print(f\"Tích: {product}\")\n    print(f\"Hiệu: {diff}\")\n    print(f\"Phép chia (a//b): {nums[0] // nums[1]}, dư: {nums[0] % nums[1]}\")\n\n    # Bài 4\n    s1 = input(\"Nhập chuỗi 1: \")\n    s2 = input(\"Nhập chuỗi 2: \")\n    s3 = input(\"Nhập chuỗi 3: \")\n    print(f\"{s1} {s2} {s3}\")\n\n    # Bài 5\n    r = float(input(\"Nhập bán kính: \"))\n    pi = 3.14\n    cv = 2 * pi * r\n    dt = pi * r * r\n    print(f\"Chu vi: {cv}\")\n    print(f\"Diện tích: {dt}\")\n\nif __name__ == \"__main__\":\n    main()",
+  "sample_run": "Nhập số a: 5\nNhập số b: 3\nTổng: 8\nNhập chuỗi: Hello\nHello\nNhập số 1: 4\nNhập số 2: 2\nNhập số 3: 3\nTổng: 9\nTích: 24\nHiệu: 2\nPhép chia (a//b): 2, dư: 0\nNhập chuỗi 1: Nguyen\nNhập chuỗi 2: Van\nNhập chuỗi 3: Minh\nNguyen Van Minh\nNhập bán kính: 2.5\nChu vi: 15.7\nDiện tích: 19.625",
+  "notes": ["Dùng input() để nhập dữ liệu từ bàn phím", "Convert dữ liệu sang int/float theo nhu
+
+## Giải thích
+
+{
+  "title": "Bài tập Python - Phần 2.3",
+  "summary": "Hướng dẫn giải các bài tập nhập/xuất dữ liệu và tính toán cơ bản bằng Python",
+  "explanation": "Mỗi bài tập yêu cầu nhập dữ liệu từ bàn phím, xử lý và xuất kết quả. Các bài 3 và 5 yêu cầu tính toán toán học cụ thể.",
+  "code": "def main():\n    # Bài 1\n    a = int(input(\"Nhập số a: \"))\n    b = int(input(\"Nhập số b: \"))\n    print(f\"Tổng: {a + b}\")\n\n    # Bài 2\n    s = input(\"Nhập chuỗi: \")\n    print(s)\n\n    # Bài 3\n    nums = [int(input(f\"Nhập số {i+1}: \")) for i in range(3)]\n    total = sum(nums)\n    product = nums[0] * nums[1] * nums[2]\n    diff = nums[0] - nums[1]\n    print(f\"Tổng: {total}\")\n    print(f\"Tích: {product}\")\n    print(f\"Hiệu: {diff}\")\n    print(f\"Phép chia (a//b): {nums[0] // nums[1]}, dư: {nums[0] % nums[1]}\")\n\n    # Bài 4\n    s1 = input(\"Nhập chuỗi 1: \")\n    s2 = input(\"Nhập chuỗi 2: \")\n    s3 = input(\"Nhập chuỗi 3: \")\n    print(f\"{s1} {s2} {s3}\")\n\n    # Bài 5\n    r = float(input(\"Nhập bán kính: \"))\n    pi = 3.14\n    cv = 2 * pi * r\n    dt = pi * r * r\n    print(f\"Chu vi: {cv}\")\n    print(f\"Diện tích: {dt}\")\n\nif __name__ == \"__main__\":\n    main()",
+  "sample_run": "Nhập số a: 5\nNhập số b: 3\nTổng: 8\nNhập chuỗi: Hello\nHello\nNhập số 1: 4\nNhập số 2: 2\nNhập số 3: 3\nTổng: 9\nTích: 24\nHiệu: 2\nPhép chia (a//b): 2, dư: 0\nNhập chuỗi 1: Nguyen\nNhập chuỗi 2: Van\nNhập chuỗi 3: Minh\nNguyen Van Minh\nNhập bán kính: 2.5\nChu vi: 15.7\nDiện tích: 19.625",
+  "notes": ["Dùng input() để nhập dữ liệu từ bàn phím", "Convert dữ liệu sang int/float theo nhu
+
